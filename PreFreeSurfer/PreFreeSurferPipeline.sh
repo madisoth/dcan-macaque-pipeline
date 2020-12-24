@@ -101,8 +101,8 @@ useT2=`getopt1 "--useT2" $@` # useT2 flag added for excluding or including T2 pr
 T1wNormalized=`getopt1 "--t1normalized" $@` # brain normalized to  matter intensities
 useReverseEpi=`getopt1 "--revepi" $@`
 MultiTemplateDir=`getopt1 "--multitemplatedir" $@`
-T1BrainMask=`opts_GetOpt1 "--t1brainmask" $@` # optional user-specified T1 mask
-T2BrainMask=`opts_GetOpt1 "--t2brainmask" $@` # optional user-specified T2 mask
+T1BrainMask=`getopt1 "--t1brainmask" $@` # optional user-specified T1 mask
+T2BrainMask=`getopt1 "--t2brainmask" $@` # optional user-specified T2 mask
 
 
 if [ -n "${T1BrainMask}" ] && [[ "${T1BrainMask^^}" == "NONE" ]] ; then
