@@ -49,6 +49,17 @@ fi
 #    T2w/xfms/
 #    MNINonLinear/xfms/
 #
+
+
+###################################### LOAD FUNCTION LIBRARIES ######################################
+ 
+
+source $HCPPIPEDIR/global/scripts/log.shlib  # Logging related functions
+source $HCPPIPEDIR/global/scripts/opts.shlib # Command line option functions
+
+#  Establish tool name for logging
+log_SetToolName "PreFreeSurferPipeline.sh"
+
 ########################################## SUPPORT FUNCTIONS ##########################################
 # function for parsing options
 getopt1() {
@@ -78,10 +89,6 @@ assert_file_exists() {
         exit 1
     fi
 }
-
-#  Establish tool name for logging
-log_SetToolName "PreFreeSurferPipeline.sh"
-
 
 ################################################## OPTION PARSING #####################################################
 
