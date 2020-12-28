@@ -78,6 +78,11 @@ assert_file_exists() {
         exit 1
     fi
 }
+
+#  Establish tool name for logging
+log_SetToolName "PreFreeSurferPipeline.sh"
+
+
 ################################################## OPTION PARSING #####################################################
 
 # Input Variables
