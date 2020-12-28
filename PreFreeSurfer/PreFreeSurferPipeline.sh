@@ -64,6 +64,20 @@ getopt1() {
 defaultopt() {
     echo $1
 }
+
+# Supply a file's path. Optionally, supply the line number.
+assert_file_exists() {
+    if [ -e ${1} ] ; then
+        : # all is well
+    else
+        # Assertion failed.
+        log_Msg "Error. File does not exist: ${1}"
+        if [ -n "${2}" ] ; then
+            log_Msg "$0, line $2"
+        fi
+        exit 1
+    fi
+}
 ################################################## OPTION PARSING #####################################################
 
 # Input Variables
