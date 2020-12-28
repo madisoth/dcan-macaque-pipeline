@@ -98,11 +98,13 @@ TopupConfig=`getopt1 "--topupconfig" $@`  # "${27}" #Config for topup or "NONE" 
 BiasFieldSmoothingSigma=`getopt1 "--bfsigma" $@`  # "$9"
 RUN=`getopt1 "--printcom" $@`  # use ="echo" for just printing everything and not running the commands (default is to run)
 useT2=`getopt1 "--useT2" $@` # useT2 flag added for excluding or including T2 processing, grabbed from batch file
-T1wNormalized=`getopt1 "--t1normalized" $@` # brain normalized to  matter intensities
+T1wNormalized=`getopt1 "--t1normalized" $@` # brain normalized to matter intensities
 useReverseEpi=`getopt1 "--revepi" $@`
 MultiTemplateDir=`getopt1 "--multitemplatedir" $@`
 T1BrainMask=`getopt1 "--t1brainmask" $@` # optional user-specified T1 mask
 T2BrainMask=`getopt1 "--t2brainmask" $@` # optional user-specified T2 mask
+echo T1BrainMask
+echo T2BrainMask
 
 
 if [ -n "${T1BrainMask}" ] && [[ "${T1BrainMask^^}" == "NONE" ]] ; then
