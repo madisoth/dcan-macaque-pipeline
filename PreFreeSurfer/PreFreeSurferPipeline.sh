@@ -214,18 +214,18 @@ for TXw in ${Modalities} ; do
     TXwExt=${Subject}_T2w_SPC_average
     if [ -n "${T2BrainMask}" ]; then
       TxwBrainMask=${T2BrainMask}
-#**  elif [ $TXw = T1wN ]; then
-#    TXwInputImages="${T1wNInputImages}"
-#    TXwFolder=${T1wNFolder}
-#    TXwImage=${T1wNImage} #T1W  Normalized
-#    TXwTemplate=${T1wTemplate} # It points to the template at 0.7 mm skull+brain, OMD (Remember, scan was performed at 0.7mm isotropic)
-#    TXwTemplateBrain=${T1wTemplateBrain}
-#    TXwTemplate2mm=${T1wTemplate2mm} # It points to the template at 2.0 mm skull+brain, OMD (Remember, scan was performed at 0.7mm isotropic)
-#    TXwExt=${Subject}_T1w_MPR_average_AdultInt
+  #**  elif [ $TXw = T1wN ]; then
+  #    TXwInputImages="${T1wNInputImages}"
+  #    TXwFolder=${T1wNFolder}
+  #    TXwImage=${T1wNImage} #T1W  Normalized
+  #    TXwTemplate=${T1wTemplate} # It points to the template at 0.7 mm skull+brain, OMD (Remember, scan was performed at 0.7mm isotropic)
+  #    TXwTemplateBrain=${T1wTemplateBrain}
+  #    TXwTemplate2mm=${T1wTemplate2mm} # It points to the template at 2.0 mm skull+brain, OMD (Remember, scan was performed at 0.7mm isotropic)
+  #    TXwExt=${Subject}_T1w_MPR_average_AdultInt
   fi
   OutputTXwImageSTRING=""
 
-#### Gradient nonlinearity correction  (for T1w and T2w) ####
+  #### Gradient nonlinearity correction  (for T1w and T2w) ####
 
   if [ ! $GradientDistortionCoeffs = "NONE" ] ; then
 	   i=1
@@ -254,7 +254,7 @@ for TXw in ${Modalities} ; do
 	  done
   fi
 
-#### Average Like Scans ####
+  #### Average Like Scans ####
 
   if [ `echo $TXwInputImages | wc -w` -gt 1 ] ; then
     mkdir -p ${TXwFolder}/Average${TXw}Images
@@ -277,8 +277,8 @@ for TXw in ${Modalities} ; do
     ${RUN} ${FSLDIR}/bin/imcp ${TXwFolder}/${TXwImage}1_gdc ${TXwFolder}/${TXwImage}
   fi
 
-#### ACPC align T1w and T2w image to 0.7mm MNI T1wTemplate to create native volume space ####
-#**  if [ ! $TXw = "T1wN" ]; then
+  #### ACPC align T1w and T2w image to 0.7mm MNI T1wTemplate to create native volume space ####
+  #**  if [ ! $TXw = "T1wN" ]; then
   mkdir -p ${TXwFolder}/ACPCAlignment
   # Assume Brain has been placed in T1w from Prep stage.
   ${RUN} ${PipelineScripts}/ACPCAlignment.sh \
@@ -288,36 +288,36 @@ for TXw in ${Modalities} ; do
   --out=${TXwFolder}/${TXwImage}_acpc_brain \
   --omat=${TXwFolder}/xfms/acpc.mat \
   --brainsize=${BrainSize}
-  # Apply linear transform to head.
-#  flirt -in ${TXwFolder}/${TXwImage}_brain -ref ${TXwTemplate} -applyxfm -init ${TXwFolder}/xfms/acpc.mat -out ${TXwFolder}/${TXwImage}_acpc_brain
-#  ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc_brain -bin ${TXwFolder}/${TXwImage}_acpc_brain_mask
-#**  else
-    # ensure that the same T1w transform is applied to normed brain.
-#    echo "applying acpc warp to Normalized image"
-#    cp ${T1wFolder}/xfms/acpc.mat ${TXwFolder}/xfms/acpc.mat
-#    ${FSLDIR}/bin/applywarp --rel --interp=spline -i "${TXwFolder}/${TXwImage}" -r "${TXwTemplate}" \
-#    --premat="${TXwFolder}/xfms/acpc.mat" -o "${TXwFolder}/${TXwImage}_acpc"
-#  fi
+    # Apply linear transform to head.
+  #  flirt -in ${TXwFolder}/${TXwImage}_brain -ref ${TXwTemplate} -applyxfm -init ${TXwFolder}/xfms/acpc.mat -out ${TXwFolder}/${TXwImage}_acpc_brain
+  #  ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc_brain -bin ${TXwFolder}/${TXwImage}_acpc_brain_mask
+  #**  else
+      # ensure that the same T1w transform is applied to normed brain.
+  #    echo "applying acpc warp to Normalized image"
+  #    cp ${T1wFolder}/xfms/acpc.mat ${TXwFolder}/xfms/acpc.mat
+  #    ${FSLDIR}/bin/applywarp --rel --interp=spline -i "${TXwFolder}/${TXwImage}" -r "${TXwTemplate}" \
+  #    --premat="${TXwFolder}/xfms/acpc.mat" -o "${TXwFolder}/${TXwImage}_acpc"
+  #  fi
 
-#### Brain Extraction (FNIRT-based Masking) ####
+  #### Brain Extraction (FNIRT-based Masking) ####
 
 
-############ FNL - this is performed using ANTs in Prep
-#  mkdir -p ${TXwFolder}/BrainExtraction_FNIRTbased
-#  ${RUN} ${PipelineScripts}/BrainExtraction_FNIRTbased.sh \
-#			--workingdir=${TXwFolder}/BrainExtraction_ANTsbased \
-#			--in=${TXwFolder}/${TXwImage}_acpc \
-#			--ref=${TXwTemplate} \
-#			--refmask=${TemplateMask} \
-#			--ref2mm=${TXwTemplate2mm} \
-#			--ref2mmmask=${Template2mmMask} \
-#			--outbrain=${TXwFolder}/${TXwImage}_acpc_brain \
-#			--outbrainmask=${TXwFolder}/${TXwImage}_acpc_brain_mask \
-#			--fnirtconfig=${FNIRTConfig};
-#    ${FSLDIR}/bin/flirt -in ${TXwFolder}/${TXwImage}_brain -ref ${TXwTemplate} -applyxfm -init ${TXwFolder}/xfms/acpc.mat -out ${TXwFolder}/${TXwImage}_acpc_brain
-#    ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc_brain -bin ${TXwFolder}/${TXwImage}_acpc_brain_mask
-#**   if [ $TXw = T1wN ]; then ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc -mas ${T1wFolder}/${T1wImage}_acpc_brain_mask ${TXwFolder}/${TXwImage}_acpc_brain; fi 
-#apply acpc.mat to head
+  ############ FNL - this is performed using ANTs in Prep
+  #  mkdir -p ${TXwFolder}/BrainExtraction_FNIRTbased
+  #  ${RUN} ${PipelineScripts}/BrainExtraction_FNIRTbased.sh \
+  #			--workingdir=${TXwFolder}/BrainExtraction_ANTsbased \
+  #			--in=${TXwFolder}/${TXwImage}_acpc \
+  #			--ref=${TXwTemplate} \
+  #			--refmask=${TemplateMask} \
+  #			--ref2mm=${TXwTemplate2mm} \
+  #			--ref2mmmask=${Template2mmMask} \
+  #			--outbrain=${TXwFolder}/${TXwImage}_acpc_brain \
+  #			--outbrainmask=${TXwFolder}/${TXwImage}_acpc_brain_mask \
+  #			--fnirtconfig=${FNIRTConfig};
+  #    ${FSLDIR}/bin/flirt -in ${TXwFolder}/${TXwImage}_brain -ref ${TXwTemplate} -applyxfm -init ${TXwFolder}/xfms/acpc.mat -out ${TXwFolder}/${TXwImage}_acpc_brain
+  #    ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc_brain -bin ${TXwFolder}/${TXwImage}_acpc_brain_mask
+  #**   if [ $TXw = T1wN ]; then ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc -mas ${T1wFolder}/${T1wImage}_acpc_brain_mask ${TXwFolder}/${TXwImage}_acpc_brain; fi 
+  #apply acpc.mat to head
     ${FSLDIR}/bin/applywarp --rel --interp=spline -i "${TXwFolder}/${TXwImage}" -r "${TXwTemplate}" \
         --premat="${TXwFolder}/xfms/acpc.mat" -o "${TXwFolder}/${TXwImage}_acpc"
 
