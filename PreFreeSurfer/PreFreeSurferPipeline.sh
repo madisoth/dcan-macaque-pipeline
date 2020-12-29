@@ -131,8 +131,6 @@ useReverseEpi=$(getopt1 "--revepi" $@)
 MultiTemplateDir=$(getopt1 "--multitemplatedir" $@)
 T1BrainMask=$(getopt1 "--t1brainmask" $@) # optional user-specified T1 mask
 T2BrainMask=$(getopt1 "--t2brainmask" $@) # optional user-specified T2 mask
-echo T1BrainMask
-echo T2BrainMask
 
 if [ -n "${T1BrainMask}" ] && [[ "${T1BrainMask^^}" == "NONE" ]]; then
   unset T1BrainMask
@@ -226,7 +224,7 @@ for TXw in ${Modalities}; do
     TXwTemplate2mm=${T1wTemplate2mm} # It points to the template at 2.0 mm skull+brain, OMD (Remember, scan was performed at 0.7mm isotropic)
     TXwExt=${Subject}_T1w_MPR_average
     if [ -n "${T1BrainMask}" ]; then
-      TxwBrainMask=${T1BrainMask}
+      TXwBrainMask=${T1BrainMask}
     fi
   elif [ $TXw = T2w ]; then
     TXwInputImages="${T2wInputImages}"
@@ -237,7 +235,7 @@ for TXw in ${Modalities}; do
     TXwTemplate2mm=${T2wTemplate2mm}
     TXwExt=${Subject}_T2w_SPC_average
     if [ -n "${T2BrainMask}" ]; then
-      TxwBrainMask=${T2BrainMask}
+      TXwBrainMask=${T2BrainMask}
     fi
   #**  elif [ $TXw = T1wN ]; then
   #    TXwInputImages="${T1wNInputImages}"
@@ -346,19 +344,19 @@ for TXw in ${Modalities}; do
   --premat="${TXwFolder}/xfms/acpc.mat" -o "${TXwFolder}/${TXwImage}_acpc"
 
   # Thomas alternative fix added: use user-specified mask
-  if [ -n "${TxwBrainMask}" ]; then
-    # The user has supplied a Txw brain mask.
-    # Extract the Txw brain.
+  if [ -n "${TXwBrainMask}" ]; then
+    # The user has supplied a TXw brain mask.
+    # Extract the TXw brain.
 
     # Copy the user-supplied mask to ${T1wFolder}/${T1wImage}_brain_mask.
-    imcp ${TxwBrainMask} ${TxwFolder}/${TxwImage}_brain_mask
+    imcp ${TXwBrainMask} ${TXwFolder}/${TXwImage}_brain_mask
 
-    # The Txw head was ACPC aligned above. Use the resulting
+    # The TXw head was ACPC aligned above. Use the resulting
     # acpc.mat to align the mask.
-    ${FSLDIR}/bin/applywarp --rel --interp=nn -i ${TxwFolder}/${TxwImage}_brain_mask -r ${TxwTemplateBrain} --premat=${TxwFolder}/xfms/acpc.mat -o ${TxwFolder}/${TxwImage}_acpc_brain_mask
+    ${FSLDIR}/bin/applywarp --rel --interp=nn -i ${TXwFolder}/${TXwImage}_brain_mask -r ${TXwTemplateBrain} --premat=${TXwFolder}/xfms/acpc.mat -o ${TXwFolder}/${TXwImage}_acpc_brain_mask
 
-    # Use the ACPC aligned Txw brain mask to extract the Txw brain.
-    ${FSLDIR}/bin/fslmaths ${TxwFolder}/${TxwImage}_acpc -mas ${TxwFolder}/${TxwImage}_acpc_brain_mask ${TxwFolder}/${TxwImage}_acpc_brain
+    # Use the ACPC aligned TXw brain mask to extract the TXw brain.
+    ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc -mas ${TXwFolder}/${TXwImage}_acpc_brain_mask ${TXwFolder}/${TXwImage}_acpc_brain
 
   else
     #Bene alternative fix added: apply warp to mask, then make brain mask and use it to mask T1w acpc
