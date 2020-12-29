@@ -256,8 +256,8 @@ for TXw in ${Modalities} ; do
   #### Gradient nonlinearity correction  (for T1w and T2w) ####
 
   if [ ! $GradientDistortionCoeffs = "NONE" ] ; then
-	   i=1
-     for Image in $TXwInputImages ; do
+	  i=1
+    for Image in $TXwInputImages ; do
 	    wdir=${TXwFolder}/${TXwImage}${i}_GradientDistortionUnwarp
       echo "mkdir -p $wdir"
 	    mkdir -p $wdir
@@ -270,7 +270,7 @@ for TXw in ${Modalities} ; do
       --owarp=${TXwFolder}/xfms/${TXwImage}${i}_gdc_warp
 	    OutputTXwImageSTRING="${OutputTXwImageSTRING}${TXwFolder}/${TXwImage}${i}_gdc "
 	    i=$(($i+1))
-	done
+    done
 
   else
 	  echo "NOT PERFORMING GRADIENT DISTORTION CORRECTION"
@@ -294,7 +294,7 @@ for TXw in ${Modalities} ; do
     ${RUN} ${PipelineScripts}/AnatomicalAverage.sh -o ${TXwFolder}/${TXwImage} -s ${TXwTemplate} -m ${TemplateMask} \
     -n -w ${TXwFolder}/Average${TXw}Images --noclean -v -b $BrainSize $OutputTXwImageSTRING
     #fi
-   ###Added by Bene to use created warp above and apply it to the brain 
+    ###Added by Bene to use created warp above and apply it to the brain 
     ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_brain -bin ${TXwFolder}/${TXwImage}_mask
     ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_brain -bin ${TXwFolder}/${TXwImage}_mask_rot2first  #take this out once done testing just something for QC for now
     $FSLDIR/bin/applywarp --rel -i ${TXwFolder}/${TXwImage}_mask --premat=${TXwFolder}/Average${TXw}Images/ToHalfTrans0001.mat -r ${TXwFolder}/${TXwImage} -o ${TXwFolder}/${TXwImage}_mask --interp=nn
@@ -346,11 +346,10 @@ for TXw in ${Modalities} ; do
   #    ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc_brain -bin ${TXwFolder}/${TXwImage}_acpc_brain_mask
   #**   if [ $TXw = T1wN ]; then ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc -mas ${T1wFolder}/${T1wImage}_acpc_brain_mask ${TXwFolder}/${TXwImage}_acpc_brain; fi 
   #apply acpc.mat to head
-    ${FSLDIR}/bin/applywarp --rel --interp=spline -i "${TXwFolder}/${TXwImage}" -r "${TXwTemplate}" \
-        --premat="${TXwFolder}/xfms/acpc.mat" -o "${TXwFolder}/${TXwImage}_acpc"
+  ${FSLDIR}/bin/applywarp --rel --interp=spline -i "${TXwFolder}/${TXwImage}" -r "${TXwTemplate}" \
+    --premat="${TXwFolder}/xfms/acpc.mat" -o "${TXwFolder}/${TXwImage}_acpc"
 
   # Thomas alternative fix added: use user-specified mask
-
   if [ -n "${TxwBrainMask}" ]; then
     # The user has supplied a Txw brain mask. 
     # Extract the Txw brain.
@@ -365,11 +364,10 @@ for TXw in ${Modalities} ; do
     # Use the ACPC aligned Txw brain mask to extract the Txw brain.
     ${FSLDIR}/bin/fslmaths ${TxwFolder}/${TxwImage}_acpc -mas ${TxwFolder}/${TxwImage}_acpc_brain_mask ${TxwFolder}/${TxwImage}_acpc_brain
 
-  else
-	
+  else	
 	#Bene alternative fix added: apply warp to mask, then make brain mask and use it to mask T1w acpc 
    	${FSLDIR}/bin/applywarp --rel --interp=nn -i ${TXwFolder}/${TXwImage}_mask -r ${TXwTemplateBrain} --premat=${TXwFolder}/xfms/acpc.mat -o ${TXwFolder}/${TXwImage}_acpc_brain_mask
-	${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc -mas ${TXwFolder}/${TXwImage}_acpc_brain_mask ${TXwFolder}/${TXwImage}_acpc_brain
+	  ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc -mas ${TXwFolder}/${TXwImage}_acpc_brain_mask ${TXwFolder}/${TXwImage}_acpc_brain
     #make brain mask taken out by Bene and replaced with above
     #${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc_brain -bin ${TXwFolder}/${TXwImage}_acpc_brain_mask
   fi
