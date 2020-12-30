@@ -187,9 +187,9 @@ if [ ! -e ${T1wFolder}/xfms ]; then
   mkdir -p ${T1wFolder}/xfms/
 fi
 # Placing T1wN niftis in T1w folder -Dakota 10/26/17
-#if [ ! -e ${T1wNFolder}/xfms ]; then
-#  echo "mkdir -p ${T1wNFolder}/xfms/"
-#  mkdir -p ${T1wNFolder}/xfms/
+# if [ ! -e ${T1wNFolder}/xfms ]; then
+#   echo "mkdir -p ${T1wNFolder}/xfms/"
+#   mkdir -p ${T1wNFolder}/xfms/
 #fi
 if $useT2; then
   if [ ! -e ${T2wFolder}/xfms ]; then
@@ -248,7 +248,7 @@ for TXw in ${Modalities}; do
   fi
   OutputTXwImageSTRING=""
 
-  #### Gradient nonlinearity correction  (for T1w and T2w) ####
+#### Gradient nonlinearity correction  (for T1w and T2w) ####
 
   if [ ! $GradientDistortionCoeffs = "NONE" ]; then
     i=1
@@ -277,7 +277,7 @@ for TXw in ${Modalities}; do
     done
   fi
 
-  #### Average Like Scans ####
+#### Average Like Scans ####
 
   if [ $(echo $TXwInputImages | wc -w) -gt 1 ]; then
     mkdir -p ${TXwFolder}/Average${TXw}Images
@@ -300,7 +300,7 @@ for TXw in ${Modalities}; do
     ${RUN} ${FSLDIR}/bin/imcp ${TXwFolder}/${TXwImage}1_gdc ${TXwFolder}/${TXwImage}
   fi
 
-  #### ACPC align T1w and T2w image to 0.7mm MNI T1wTemplate to create native volume space ####
+#### ACPC align T1w and T2w image to 0.7mm MNI T1wTemplate to create native volume space ####
   #**  if [ ! $TXw = "T1wN" ]; then
   mkdir -p ${TXwFolder}/ACPCAlignment
   # Assume Brain has been placed in T1w from Prep stage.
@@ -322,28 +322,28 @@ for TXw in ${Modalities}; do
   #    --premat="${TXwFolder}/xfms/acpc.mat" -o "${TXwFolder}/${TXwImage}_acpc"
   #  fi
 
-  #### Brain Extraction (FNIRT-based Masking) ####
+#### Brain Extraction (FNIRT-based Masking) ####
 
-  ############ FNL - this is performed using ANTs in Prep
-  #  mkdir -p ${TXwFolder}/BrainExtraction_FNIRTbased
-  #  ${RUN} ${PipelineScripts}/BrainExtraction_FNIRTbased.sh \
-  #			--workingdir=${TXwFolder}/BrainExtraction_ANTsbased \
-  #			--in=${TXwFolder}/${TXwImage}_acpc \
-  #			--ref=${TXwTemplate} \
-  #			--refmask=${TemplateMask} \
-  #			--ref2mm=${TXwTemplate2mm} \
-  #			--ref2mmmask=${Template2mmMask} \
-  #			--outbrain=${TXwFolder}/${TXwImage}_acpc_brain \
-  #			--outbrainmask=${TXwFolder}/${TXwImage}_acpc_brain_mask \
-  #			--fnirtconfig=${FNIRTConfig};
-  #    ${FSLDIR}/bin/flirt -in ${TXwFolder}/${TXwImage}_brain -ref ${TXwTemplate} -applyxfm -init ${TXwFolder}/xfms/acpc.mat -out ${TXwFolder}/${TXwImage}_acpc_brain
-  #    ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc_brain -bin ${TXwFolder}/${TXwImage}_acpc_brain_mask
-  #**   if [ $TXw = T1wN ]; then ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc -mas ${T1wFolder}/${T1wImage}_acpc_brain_mask ${TXwFolder}/${TXwImage}_acpc_brain; fi
+############ FNL - this is performed using ANTs in Prep
+#  mkdir -p ${TXwFolder}/BrainExtraction_FNIRTbased
+#  ${RUN} ${PipelineScripts}/BrainExtraction_FNIRTbased.sh \
+#			--workingdir=${TXwFolder}/BrainExtraction_ANTsbased \
+#			--in=${TXwFolder}/${TXwImage}_acpc \
+#			--ref=${TXwTemplate} \
+#			--refmask=${TemplateMask} \
+#			--ref2mm=${TXwTemplate2mm} \
+#			--ref2mmmask=${Template2mmMask} \
+#			--outbrain=${TXwFolder}/${TXwImage}_acpc_brain \
+#			--outbrainmask=${TXwFolder}/${TXwImage}_acpc_brain_mask \
+#			--fnirtconfig=${FNIRTConfig};
+#    ${FSLDIR}/bin/flirt -in ${TXwFolder}/${TXwImage}_brain -ref ${TXwTemplate} -applyxfm -init ${TXwFolder}/xfms/acpc.mat -out ${TXwFolder}/${TXwImage}_acpc_brain
+#    ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc_brain -bin ${TXwFolder}/${TXwImage}_acpc_brain_mask
+#**   if [ $TXw = T1wN ]; then ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc -mas ${T1wFolder}/${T1wImage}_acpc_brain_mask ${TXwFolder}/${TXwImage}_acpc_brain; fi
   #apply acpc.mat to head
   ${FSLDIR}/bin/applywarp --rel --interp=spline -i "${TXwFolder}/${TXwImage}" -r "${TXwTemplate}" \
   --premat="${TXwFolder}/xfms/acpc.mat" -o "${TXwFolder}/${TXwImage}_acpc"
 
-  # Thomas alternative fix added: use user-specified mask
+  # Thomas edit 12/23/2020: use user-specified mask
   if [ -n "${TXwBrainMask}" ]; then
     # The user has supplied a TXw brain mask.
     # Extract the TXw brain.
