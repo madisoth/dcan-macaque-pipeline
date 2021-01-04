@@ -348,7 +348,7 @@ for TXw in ${Modalities}; do
     # The user has supplied a TXw brain mask.
     # Extract the TXw brain.
 
-    # Copy the user-supplied mask to ${T1wFolder}/${T1wImage}_brain_mask.
+    # Copy the user-supplied mask to ${TXwFolder}/${TXwImage}_brain_mask.
     imcp ${TXwBrainMask} ${TXwFolder}/${TXwImage}_brain_mask
 
     # The TXw head was ACPC aligned above. Use the resulting
