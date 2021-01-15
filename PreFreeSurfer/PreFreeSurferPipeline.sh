@@ -132,6 +132,9 @@ MultiTemplateDir=$(getopt1 "--multitemplatedir" $@)
 T1BrainMask=$(getopt1 "--t1brainmask" $@) # optional user-specified T1 mask
 T2BrainMask=$(getopt1 "--t2brainmask" $@) # optional user-specified T2 mask
 
+# useAntsReg flag added for using ANTs registration instead of FSL
+useAntsReg=$(getopt1 "--useAntsReg" $@)
+
 if [ -n "${T1BrainMask}" ] && [[ "${T1BrainMask^^}" == "NONE" ]]; then
   unset T1BrainMask
 elif [ -n "${T1BrainMask}" ]; then
@@ -248,7 +251,7 @@ for TXw in ${Modalities}; do
   fi
   OutputTXwImageSTRING=""
 
-#### Gradient nonlinearity correction  (for T1w and T2w) ####
+  #### Gradient nonlinearity correction  (for T1w and T2w) ####
 
   if [ ! $GradientDistortionCoeffs = "NONE" ]; then
     i=1
@@ -277,7 +280,7 @@ for TXw in ${Modalities}; do
     done
   fi
 
-#### Average Like Scans ####
+  #### Average Like Scans ####
 
   if [ $(echo $TXwInputImages | wc -w) -gt 1 ]; then
     mkdir -p ${TXwFolder}/Average${TXw}Images
@@ -300,7 +303,7 @@ for TXw in ${Modalities}; do
     ${RUN} ${FSLDIR}/bin/imcp ${TXwFolder}/${TXwImage}1_gdc ${TXwFolder}/${TXwImage}
   fi
 
-#### ACPC align T1w and T2w image to 0.7mm MNI T1wTemplate to create native volume space ####
+  #### ACPC align T1w and T2w image to 0.7mm MNI T1wTemplate to create native volume space ####
   #**  if [ ! $TXw = "T1wN" ]; then
   mkdir -p ${TXwFolder}/ACPCAlignment
   # Assume Brain has been placed in T1w from Prep stage.
@@ -322,23 +325,23 @@ for TXw in ${Modalities}; do
   #    --premat="${TXwFolder}/xfms/acpc.mat" -o "${TXwFolder}/${TXwImage}_acpc"
   #  fi
 
-#### Brain Extraction (FNIRT-based Masking) ####
+  #### Brain Extraction (FNIRT-based Masking) ####
 
-############ FNL - this is performed using ANTs in Prep
-#  mkdir -p ${TXwFolder}/BrainExtraction_FNIRTbased
-#  ${RUN} ${PipelineScripts}/BrainExtraction_FNIRTbased.sh \
-#			--workingdir=${TXwFolder}/BrainExtraction_ANTsbased \
-#			--in=${TXwFolder}/${TXwImage}_acpc \
-#			--ref=${TXwTemplate} \
-#			--refmask=${TemplateMask} \
-#			--ref2mm=${TXwTemplate2mm} \
-#			--ref2mmmask=${Template2mmMask} \
-#			--outbrain=${TXwFolder}/${TXwImage}_acpc_brain \
-#			--outbrainmask=${TXwFolder}/${TXwImage}_acpc_brain_mask \
-#			--fnirtconfig=${FNIRTConfig};
-#    ${FSLDIR}/bin/flirt -in ${TXwFolder}/${TXwImage}_brain -ref ${TXwTemplate} -applyxfm -init ${TXwFolder}/xfms/acpc.mat -out ${TXwFolder}/${TXwImage}_acpc_brain
-#    ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc_brain -bin ${TXwFolder}/${TXwImage}_acpc_brain_mask
-#**   if [ $TXw = T1wN ]; then ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc -mas ${T1wFolder}/${T1wImage}_acpc_brain_mask ${TXwFolder}/${TXwImage}_acpc_brain; fi
+  ############ FNL - this is performed using ANTs in Prep
+  #  mkdir -p ${TXwFolder}/BrainExtraction_FNIRTbased
+  #  ${RUN} ${PipelineScripts}/BrainExtraction_FNIRTbased.sh \
+  #			--workingdir=${TXwFolder}/BrainExtraction_ANTsbased \
+  #			--in=${TXwFolder}/${TXwImage}_acpc \
+  #			--ref=${TXwTemplate} \
+  #			--refmask=${TemplateMask} \
+  #			--ref2mm=${TXwTemplate2mm} \
+  #			--ref2mmmask=${Template2mmMask} \
+  #			--outbrain=${TXwFolder}/${TXwImage}_acpc_brain \
+  #			--outbrainmask=${TXwFolder}/${TXwImage}_acpc_brain_mask \
+  #			--fnirtconfig=${FNIRTConfig};
+  #    ${FSLDIR}/bin/flirt -in ${TXwFolder}/${TXwImage}_brain -ref ${TXwTemplate} -applyxfm -init ${TXwFolder}/xfms/acpc.mat -out ${TXwFolder}/${TXwImage}_acpc_brain
+  #    ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc_brain -bin ${TXwFolder}/${TXwImage}_acpc_brain_mask
+  #**   if [ $TXw = T1wN ]; then ${FSLDIR}/bin/fslmaths ${TXwFolder}/${TXwImage}_acpc -mas ${T1wFolder}/${T1wImage}_acpc_brain_mask ${TXwFolder}/${TXwImage}_acpc_brain; fi
   #apply acpc.mat to head
   ${FSLDIR}/bin/applywarp --rel --interp=spline -i "${TXwFolder}/${TXwImage}" -r "${TXwTemplate}" \
   --premat="${TXwFolder}/xfms/acpc.mat" -o "${TXwFolder}/${TXwImage}_acpc"
@@ -472,31 +475,71 @@ else
   imcp ${T1wFolder}/${T1wImage}_acpc_dc_brain ${T1wFolder}/${T1wImage}_acpc_dc_restore_brain
 fi
 
-#### Atlas Registration to MNI152: FLIRT + FNIRT  #Also applies registration to T1w and T2w images ####
-#Consider combining all transforms and recreating files with single resampling steps
-${RUN} ${PipelineScripts}/AtlasRegistrationToMNI152_FLIRTandFNIRT.sh \
---workingdir=${AtlasSpaceFolder} \
---t1=${T1wFolder}/${T1wImage}_acpc_dc \
---t1rest=${T1wFolder}/${T1wImage}_acpc_dc_restore \
---t1restbrain=${T1wFolder}/${T1wImage}_acpc_dc_restore_brain \
---t2=${T1wFolder}/${T2wImage}_acpc_dc \
---t2rest=${T1wFolder}/${T2wImage}_acpc_dc_restore \
---t2restbrain=${T1wFolder}/${T2wImage}_acpc_dc_restore_brain \
---ref=${T1wTemplate} \
---refbrain=${T1wTemplateBrain} \
---refmask=${TemplateMask} \
---ref2mm=${T1wTemplate2mm} \
---ref2mmmask=${Template2mmMask} \
---owarp=${AtlasSpaceFolder}/xfms/acpc_dc2standard.nii.gz \
---oinvwarp=${AtlasSpaceFolder}/xfms/standard2acpc_dc.nii.gz \
---ot1=${AtlasSpaceFolder}/${T1wImage} \
---ot1rest=${AtlasSpaceFolder}/${T1wImage}_restore \
---ot1restbrain=${AtlasSpaceFolder}/${T1wImage}_restore_brain \
---ot2=${AtlasSpaceFolder}/${T2wImage} \
---ot2rest=${AtlasSpaceFolder}/${T2wImage}_restore \
---ot2restbrain=${AtlasSpaceFolder}/${T2wImage}_restore_brain \
---fnirtconfig=${FNIRTConfig} \
---useT2=${useT2}
+# Run ANTS Atlas Registration from PreFreeSurfer using the freesurfer mask (brainmask_fs.nii.gz)
+
+if ${useAntsReg}; then
+  # ------------------------------------------------------------------------------
+  #  Atlas Registration to MNI152: ANTs with Intermediate Template
+  #  Also applies registration to T1w and T2w images
+  #  Modified 20170330 by EF to include the option for a native mask in registration
+  # ------------------------------------------------------------------------------
+  log_Msg "Performing Atlas Registration to MNI152 (ANTs based with intermediate template)"
+  "${PipelineScripts}"/AtlasRegistrationToMNI152_ANTsIntermediateTemplate.sh \
+  --workingdir=${AtlasSpaceFolder} \
+  --t1=${T1wFolder}/${T1wImage}_acpc_dc \
+  --t1rest=${T1wFolder}/${T1wImage}_acpc_dc_restore \
+  --t1restbrain=${T1wFolder}/${T1wImage}acpc_dc_restore_brain \
+  --t1mask=${T1wFolder}/brainmask_fs \
+  --t2=${T1wFolder}/${T2wImage}_acpc_dc \
+  --t2rest=${T1wFolder}/${T2wImage}_acpc_dc_restore \
+  --t2restbrain=${T1wFolder}/${T2wImage}_acpc_dc_restore_brain \
+  --studytemplate=${StudyTemplate} \
+  --studytemplatebrain=${StudyTemplateBrain} \
+  --ref=${T1wTemplate} \
+  --refbrain=${T1wTemplateBrain} \
+  --refmask=${TemplateMask} \
+  --ref2mm=${T1wTemplate2mm} \
+  --ref2mmbrain=${T1wTemplate2mmBrain} \
+  --ref2mmmask=${Template2mmMask} \
+  --owarp=${AtlasSpaceFolder}/xfms/acpc_dc2standard.nii.gz \
+  --oinvwarp=${AtlasSpaceFolder}/xfms/standard2acpc_dc.nii.gz \
+  --ot1=${AtlasSpaceFolder}/${T1wImage} \
+  --ot1rest=${AtlasSpaceFolder}/${T1wImage}_restore \
+  --ot1restbrain=${AtlasSpaceFolder}/${T1wImage}_restore_brain \
+  --ot2=${AtlasSpaceFolder}/${T2wImage} \
+  --ot2rest=${AtlasSpaceFolder}/${T2wImage}_restore \
+  --ot2restbrain=${AtlasSpaceFolder}/${T2wImage}_restore_brain \
+  --fnirtconfig=${FNIRTConfig} \
+  --useT2=${useT2}
+  --T1wFolder=${T1wFolder}
+  log_Msg "Completed"
+else
+  #### Atlas Registration to MNI152: FLIRT + FNIRT  #Also applies registration to T1w and T2w images ####
+  #Consider combining all transforms and recreating files with single resampling steps
+  ${RUN} ${PipelineScripts}/AtlasRegistrationToMNI152_FLIRTandFNIRT.sh \
+  --workingdir=${AtlasSpaceFolder} \
+  --t1=${T1wFolder}/${T1wImage}_acpc_dc \
+  --t1rest=${T1wFolder}/${T1wImage}_acpc_dc_restore \
+  --t1restbrain=${T1wFolder}/${T1wImage}_acpc_dc_restore_brain \
+  --t2=${T1wFolder}/${T2wImage}_acpc_dc \
+  --t2rest=${T1wFolder}/${T2wImage}_acpc_dc_restore \
+  --t2restbrain=${T1wFolder}/${T2wImage}_acpc_dc_restore_brain \
+  --ref=${T1wTemplate} \
+  --refbrain=${T1wTemplateBrain} \
+  --refmask=${TemplateMask} \
+  --ref2mm=${T1wTemplate2mm} \
+  --ref2mmmask=${Template2mmMask} \
+  --owarp=${AtlasSpaceFolder}/xfms/acpc_dc2standard.nii.gz \
+  --oinvwarp=${AtlasSpaceFolder}/xfms/standard2acpc_dc.nii.gz \
+  --ot1=${AtlasSpaceFolder}/${T1wImage} \
+  --ot1rest=${AtlasSpaceFolder}/${T1wImage}_restore \
+  --ot1restbrain=${AtlasSpaceFolder}/${T1wImage}_restore_brain \
+  --ot2=${AtlasSpaceFolder}/${T2wImage} \
+  --ot2rest=${AtlasSpaceFolder}/${T2wImage}_restore \
+  --ot2restbrain=${AtlasSpaceFolder}/${T2wImage}_restore_brain \
+  --fnirtconfig=${FNIRTConfig} \
+  --useT2=${useT2}
+fi
 
 MultiTemplateT1wBrain=T1w_brain.nii.gz
 MultiTemplateSeg=Segmentation.nii.gz
