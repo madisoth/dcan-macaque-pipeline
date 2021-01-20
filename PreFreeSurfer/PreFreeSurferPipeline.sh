@@ -475,7 +475,7 @@ else
   imcp ${T1wFolder}/${T1wImage}_acpc_dc_brain ${T1wFolder}/${T1wImage}_acpc_dc_restore_brain
 fi
 
-# Run ANTS Atlas Registration from PreFreeSurfer using the freesurfer mask (brainmask_fs.nii.gz)
+# Run ANTS Atlas Registration using T1w acpc brain mask
 
 if ${useAntsReg}; then
   # ------------------------------------------------------------------------------
@@ -489,7 +489,7 @@ if ${useAntsReg}; then
   --t1=${T1wFolder}/${T1wImage}_acpc_dc \
   --t1rest=${T1wFolder}/${T1wImage}_acpc_dc_restore \
   --t1restbrain=${T1wFolder}/${T1wImage}acpc_dc_restore_brain \
-  --t1mask=${T1wFolder}/brainmask_fs \
+  --t1mask=${T1wFolder}/${T1wImage}_acpc_brain_mask \
   --t2=${T1wFolder}/${T2wImage}_acpc_dc \
   --t2rest=${T1wFolder}/${T2wImage}_acpc_dc_restore \
   --t2restbrain=${T1wFolder}/${T2wImage}_acpc_dc_restore_brain \
