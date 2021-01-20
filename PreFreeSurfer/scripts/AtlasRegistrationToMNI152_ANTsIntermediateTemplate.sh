@@ -99,9 +99,9 @@ OutputT2wImageRestoreBrain=`getopt1 "--ot2restbrain" $@`  # "${20}"
 useT2=`getopt1 "--useT2" $@` # "${22}"
 
 # default parameters
-WD=`defaultopt $WD .`
-Reference2mm=`defaultopt $Reference2mm ${HCPPIPEDIR_Templates}/MNI152_T1_2mm.nii.gz`
-Reference2mmMask=`defaultopt $Reference2mmMask ${HCPPIPEDIR_Templates}/MNI152_T1_2mm_brain_mask_dil.nii.gz`
+# WD=`defaultopt $WD .`
+# Reference2mm=`defaultopt $Reference2mm ${HCPPIPEDIR_Templates}/MNI152_T1_2mm.nii.gz`
+# Reference2mmMask=`defaultopt $Reference2mmMask ${HCPPIPEDIR_Templates}/MNI152_T1_2mm_brain_mask_dil.nii.gz`
 
 T1wImageBasename=`remove_ext $T1wImage`;
 T1wImageBasename=`basename $T1wImage`;
