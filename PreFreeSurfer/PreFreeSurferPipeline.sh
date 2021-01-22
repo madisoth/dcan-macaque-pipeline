@@ -134,6 +134,7 @@ T2BrainMask=$(getopt1 "--t2brainmask" $@) # optional user-specified T2 mask
 
 # useAntsReg flag added for using ANTs registration instead of FSL
 useAntsReg=$(getopt1 "--useAntsReg" $@)
+useAntsReg="$(echo ${useAntsReg} | tr '[:upper:]' '[:lower:]')" # to lower case
 
 if [ -n "${T1BrainMask}" ] && [[ "${T1BrainMask^^}" == "NONE" ]]; then
   unset T1BrainMask
