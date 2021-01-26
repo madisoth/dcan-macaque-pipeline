@@ -511,7 +511,7 @@ if ${useAntsReg}; then
   --ot2rest=${AtlasSpaceFolder}/${T2wImage}_restore \
   --ot2restbrain=${AtlasSpaceFolder}/${T2wImage}_restore_brain \
   --fnirtconfig=${FNIRTConfig} \
-  --useT2=${useT2}
+  --useT2=${useT2} \
   --T1wFolder=${T1wFolder}
   log_Msg "Completed"
 else
