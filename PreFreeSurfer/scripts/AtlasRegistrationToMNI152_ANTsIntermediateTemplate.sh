@@ -1,5 +1,8 @@
 #!/bin/bash 
-set -e
+set -x
+
+export OMP_NUM_THREADS=1
+export PATH=`echo $PATH | sed 's|freesurfer/|freesurfer53/|g'`
 
 # Requirements for this script
 #  installed versions of: FSL (version 5.0.6)

@@ -485,7 +485,7 @@ if ${useAntsReg}; then
   #  Modified 20170330 by EF to include the option for a native mask in registration
   # ------------------------------------------------------------------------------
   log_Msg "Performing Atlas Registration to MNI152 (ANTs based with intermediate template)"
-  "${PipelineScripts}"/AtlasRegistrationToMNI152_ANTsIntermediateTemplate.sh \
+  ${RUN} ${PipelineScripts}/AtlasRegistrationToMNI152_ANTsIntermediateTemplate.sh \
   --workingdir=${AtlasSpaceFolder} \
   --t1=${T1wFolder}/${T1wImage}_acpc_dc \
   --t1rest=${T1wFolder}/${T1wImage}_acpc_dc_restore \
