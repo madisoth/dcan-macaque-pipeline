@@ -131,6 +131,8 @@ useReverseEpi=$(getopt1 "--revepi" $@)
 MultiTemplateDir=$(getopt1 "--multitemplatedir" $@)
 T1BrainMask=$(getopt1 "--t1brainmask" $@) # optional user-specified T1 mask
 T2BrainMask=$(getopt1 "--t2brainmask" $@) # optional user-specified T2 mask
+StudyTemplate=$(getopt1 "--StudyTemplate" $@) # optional user-specified study template
+StudyTemplateBrain=$(getopt1 "--StudyTemplateBrain" $@) # optional user-specified study template brain
 
 # useAntsReg flag added for using ANTs registration instead of FSL
 useAntsReg=$(getopt1 "--useAntsReg" $@)
