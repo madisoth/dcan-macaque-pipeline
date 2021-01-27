@@ -489,13 +489,13 @@ if ${useAntsReg}; then
   log_Msg "Performing Atlas Registration to MNI152 (ANTs based with intermediate template)"
   ${RUN} ${PipelineScripts}/AtlasRegistrationToMNI152_ANTsIntermediateTemplate.sh \
   --workingdir=${AtlasSpaceFolder} \
-  --t1=${T1wFolder}/${T1wImage}_acpc_dc \
-  --t1rest=${T1wFolder}/${T1wImage}_acpc_dc_restore \
-  --t1restbrain=${T1wFolder}/${T1wImage}acpc_dc_restore_brain \
-  --t1mask=${T1wFolder}/${T1wImage}_acpc_brain_mask \
-  --t2=${T1wFolder}/${T2wImage}_acpc_dc \
-  --t2rest=${T1wFolder}/${T2wImage}_acpc_dc_restore \
-  --t2restbrain=${T1wFolder}/${T2wImage}_acpc_dc_restore_brain \
+  --t1=${T1wFolder}/${T1wImage}_acpc_dc.nii.gz \
+  --t1rest=${T1wFolder}/${T1wImage}_acpc_dc_restore.nii.gz \
+  --t1restbrain=${T1wFolder}/${T1wImage}_acpc_dc_restore_brain.nii.gz \
+  --t1mask=${T1wFolder}/${T1wImage}_acpc_brain_mask.nii.gz \
+  --t2=${T1wFolder}/${T2wImage}_acpc_dc.nii.gz \
+  --t2rest=${T1wFolder}/${T2wImage}_acpc_dc_restore.nii.gz \
+  --t2restbrain=${T1wFolder}/${T2wImage}_acpc_dc_restore_brain.nii.gz \
   --studytemplate=${StudyTemplate} \
   --studytemplatebrain=${StudyTemplateBrain} \
   --ref=${T1wTemplate} \
