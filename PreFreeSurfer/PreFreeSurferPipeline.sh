@@ -396,7 +396,7 @@ fi
   
   # acpc align study template brain to reference; make mask
   ${RUN} ${PipelineScripts}/ACPCAlignment.sh \
-  --workingdir=${T1wFolder}/ACPCAlignment \
+  --workingdir=${T1wFolder}/StudyTemplateACPCAlignment \
   --in=${StudyTemplateBrain} \
   --ref=${T1wTemplateBrain} \
   --out=${T1wFolder}/${StudyTemplateBasename}_acpc_brain \
