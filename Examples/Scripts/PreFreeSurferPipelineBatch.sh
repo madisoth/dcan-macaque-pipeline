@@ -212,7 +212,7 @@ main()
 
 	# Cycle through specified subjects
     useT2=${useT2:-true} # sets the useT2 flag default to "true" - AP 20162111
-    useAntsReg=${useAntsReg:-false}
+    useIntermediateReg=${useIntermediateReg:-false}
 	for Subject in $Subjlist ; do
 		echo $Subject
 
@@ -485,7 +485,7 @@ main()
 			--avgrdcmethod="$AvgrdcSTRING" \
 			--topupconfig="$TopupConfig" \
             --useT2="$useT2" \
-			--useAntsReg="$useAntsReg" \\
+			--useIntermediateReg="$useIntermediateReg" \\
 			--StudyTemplate=${StudyTemplate} \
 			--StudyTemplateBrain=${StudyTemplateBrain} \
 			--t1normalized="$T1wNormalized" \

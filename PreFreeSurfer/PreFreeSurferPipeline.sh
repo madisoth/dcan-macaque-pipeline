@@ -134,9 +134,15 @@ T2BrainMask=$(getopt1 "--t2brainmask" $@) # optional user-specified T2 mask
 StudyTemplate=$(getopt1 "--StudyTemplate" $@) # optional user-specified study template
 StudyTemplateBrain=$(getopt1 "--StudyTemplateBrain" $@) # optional user-specified study template brain
 
-# useAntsReg flag added for using ANTs registration instead of FSL
-useAntsReg=$(getopt1 "--useAntsReg" $@)
-useAntsReg="$(echo ${useAntsReg} | tr '[:upper:]' '[:lower:]')" # to lower case
+StudyTemplateBasename=`remove_ext $StudyTemplate`;
+StudyTemplateBasename=`basename $StudyTemplate`;
+StudyTemplateBrainBasename=`remove_ext $StudyTemplateBrain`;
+StudyTemplateBrainBasename=`basename $StudyTemplateBrainBasename`;
+
+# useIntermediateReg flag added for using intermediate registration to study template
+useIntermediateReg=$(getopt1 "--useIntermediateReg" $@)
+useIntermediateReg="$(echo ${useIntermediateReg} | tr '[:upper:]' '[:lower:]')" # to lower case
+
 
 if [ -n "${T1BrainMask}" ] && [[ "${T1BrainMask^^}" == "NONE" ]]; then
   unset T1BrainMask
@@ -387,6 +393,22 @@ if [ ! $T1wNormalized = "NONE" ]; then
   ${FSLDIR}/bin/fslmaths ${T1wFolder}/${T1wNImage}_acpc -mas ${T1wFolder}/${T1wImage}_acpc_brain_mask ${T1wFolder}/${T1wNImage}_acpc_brain
   popd >/dev/null
 fi
+  
+  # acpc align study template brain to reference; make mask
+  ${RUN} ${PipelineScripts}/ACPCAlignment.sh \
+  --workingdir=${T1wFolder}/ACPCAlignment \
+  --in=${StudyTemplateBrain} \
+  --ref=${T1wTemplateBrain} \
+  --out=${T1wFolder}/${StudyTemplateBasename}_acpc_brain \
+  --omat=${T1wFolder}/xfms/${StudyTemplateBasename}_acpc.mat \
+  --brainsize=${BrainSize}
+
+  fslmaths ${T1wFolder}/${StudyTemplateBasename}_acpc_brain -bin ${T1wFolder}/${StudyTemplateBasename}_acpc_mask
+
+  
+  #apply acpc xfm to study template head 
+  ${FSLDIR}/bin/applywarp --rel --interp=spline -i "${StudyTemplate}" -r "${T1wTemplate}" \
+  --premat="${T1wFolder}/xfms/StudyTemplate_acpc.mat" -o "${T1wFolder}/StudyTemplate_acpc"
 
 if ${useReverseEpi:-false}; then
   #  Time is too long for Resting State, so we average it first.
@@ -480,32 +502,39 @@ fi
 
 # Run ANTS Atlas Registration using T1w acpc brain mask
 
-if ${useAntsReg}; then
+if ${useIntermediateReg}; then
+
   # ------------------------------------------------------------------------------
   #  Atlas Registration to MNI152: ANTs with Intermediate Template
   #  Also applies registration to T1w and T2w images
   #  Modified 20170330 by EF to include the option for a native mask in registration
   # ------------------------------------------------------------------------------
-  log_Msg "Performing Atlas Registration to MNI152 (ANTs based with intermediate template)"
-  ${RUN} ${PipelineScripts}/AtlasRegistrationToMNI152_ANTsIntermediateTemplate.sh \
+
+  log_Msg "Performing Atlas Registration to MNI152 (FLIRT + FNIRT based with intermediate template)"
+  ${RUN} ${PipelineScripts}/AtlasRegistrationToMNI152_FLIRTandFNIRT_Intermediate.sh \
   --workingdir=${AtlasSpaceFolder} \
-  --t1=${T1wFolder}/${T1wImage}_acpc_dc.nii.gz \
-  --t1rest=${T1wFolder}/${T1wImage}_acpc_dc_restore.nii.gz \
-  --t1restbrain=${T1wFolder}/${T1wImage}_acpc_dc_restore_brain.nii.gz \
-  --t1mask=${T1wFolder}/${T1wImage}_acpc_brain_mask.nii.gz \
-  --t2=${T1wFolder}/${T2wImage}_acpc_dc.nii.gz \
-  --t2rest=${T1wFolder}/${T2wImage}_acpc_dc_restore.nii.gz \
-  --t2restbrain=${T1wFolder}/${T2wImage}_acpc_dc_restore_brain.nii.gz \
-  --studytemplate=${StudyTemplate} \
-  --studytemplatebrain=${StudyTemplateBrain} \
+  --t1=${T1wFolder}/${T1wImage}_acpc_dc \
+  --t1rest=${T1wFolder}/${T1wImage}_acpc_dc_restore \
+  --t1restbrain=${T1wFolder}/${T1wImage}_acpc_dc_restore_brain \
+  --t1mask=${T1wFolder}/${T1wImage}_acpc_brain_mask \
+  --t2=${T1wFolder}/${T2wImage}_acpc_dc \
+  --t2rest=${T1wFolder}/${T2wImage}_acpc_dc_restore \
+  --t2restbrain=${T1wFolder}/${T2wImage}_acpc_dc_restore_brain \
+  --studytemplate=${StudyTemplateBasename}_acpc \
+  --studytemplatebrain=${StudyTemplateBasename}_acpc_brain \
+  --studytemplatebrainmask=${StudyTemplateBasename}_acpc_mask \
   --ref=${T1wTemplate} \
   --refbrain=${T1wTemplateBrain} \
   --refmask=${TemplateMask} \
   --ref2mm=${T1wTemplate2mm} \
   --ref2mmbrain=${T1wTemplate2mmBrain} \
   --ref2mmmask=${Template2mmMask} \
-  --owarp=${AtlasSpaceFolder}/xfms/acpc_dc2standard.nii.gz \
-  --oinvwarp=${AtlasSpaceFolder}/xfms/standard2acpc_dc.nii.gz \
+  --intowarp=${AtlasSpaceFolder}/xfms/acpc_dc2int.nii.gz \ # acpc to study template
+  --intoinvwarp=${AtlasSpaceFolder}/xfms/int2acpc_dc.nii.gz \ # study template to acpc
+  --int2refowarp=${AtlasSpaceFolder}/xfms/int2standard.nii.gz \ # study template to ref
+  --int2refoinvwarp=${AtlasSpaceFolder}/xfms/standard2int.nii.gz \ # ref to study template
+  --owarp=${AtlasSpaceFolder}/xfms/acpc_dc2standard.nii.gz \ # combined warp - acpc to ref
+  --oinvwarp=${AtlasSpaceFolder}/xfms/standard2acpc_dc.nii.gz \ # combined inv warp - ref to acpc
   --ot1=${AtlasSpaceFolder}/${T1wImage} \
   --ot1rest=${AtlasSpaceFolder}/${T1wImage}_restore \
   --ot1restbrain=${AtlasSpaceFolder}/${T1wImage}_restore_brain \
@@ -514,7 +543,6 @@ if ${useAntsReg}; then
   --ot2restbrain=${AtlasSpaceFolder}/${T2wImage}_restore_brain \
   --fnirtconfig=${FNIRTConfig} \
   --useT2=${useT2} \
-  --T1wFolder=${T1wFolder}
   log_Msg "Completed"
 else
   #### Atlas Registration to MNI152: FLIRT + FNIRT  #Also applies registration to T1w and T2w images ####

@@ -135,13 +135,9 @@ echo " ANTs T1w to StudyTemplate"
 
 #All ANTs registration
 # Register Input (T1w) to StudyTemplate brain using ANTs
-# TM edit: T1wRestore is replace with T1wRestoreBrain due to issues when T1w contains large portion of the neck;
-# in the future should make an option whether to use whole-head or extracted brain  
 echo " "
-# echo ${ANTSPATH}${ANTSPATH:+/}antsRegistrationSyN.sh -d 3 -f ${StudyTemplate} -m ${T1wRestore} -o ${WD}/xfms/${T1wRestoreBasename}2${StudyTemplateBasename}_
-# ${ANTSPATH}${ANTSPATH:+/}antsRegistrationSyN.sh -d 3 -f ${StudyTemplate} -m ${T1wRestore} -o ${WD}/xfms/${T1wRestoreBasename}2${StudyTemplateBasename}_
-echo ${ANTSPATH}${ANTSPATH:+/}antsRegistrationSyN.sh -d 3 -f ${StudyTemplate} -m ${T1wRestoreBrain} -o ${WD}/xfms/${T1wRestoreBasename}2${StudyTemplateBasename}_
-${ANTSPATH}${ANTSPATH:+/}antsRegistrationSyN.sh -d 3 -f ${StudyTemplate} -m ${T1wRestoreBrain} -o ${WD}/xfms/${T1wRestoreBasename}2${StudyTemplateBasename}_
+echo ${ANTSPATH}${ANTSPATH:+/}antsRegistrationSyN.sh -d 3 -f ${StudyTemplate} -m ${T1wRestore} -o ${WD}/xfms/${T1wRestoreBasename}2${StudyTemplateBasename}_
+${ANTSPATH}${ANTSPATH:+/}antsRegistrationSyN.sh -d 3 -f ${StudyTemplate} -m ${T1wRestore} -o ${WD}/xfms/${T1wRestoreBasename}2${StudyTemplateBasename}_
 
 echo " ANTs T1w2StudyTemplate Registration to MNI"
 echo " "
