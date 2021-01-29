@@ -11,7 +11,7 @@ export PATH=`echo $PATH | sed 's|freesurfer/|freesurfer53/|g'`
 ################################################ SUPPORT FUNCTIONS ##################################################
 
 Usage() {
-  echo "`basename $0`: Tool for non-linearly registering T1w and T2w to MNI space (T1w and T2w must already be registered together)"
+  echo "`basename $0`: Tool for non-linearly registering T1w and T2w to MNI space, including intermediate registration to a study template (T1w and T2w must already be registered together)"
   echo " "
   echo "Usage: `basename $0` [--workingdir=<working dir>]"
   echo "                --t1=<t1w image>"
@@ -20,11 +20,18 @@ Usage() {
   echo "                --t2=<t2w image>"
   echo "	 	        --t2rest=<bias corrected t2w image>"
   echo "                --t2restbrain=<bias corrected, brain extracted t2w image>"
+  echo "                --studytemplate=<study template t1w image>"
+  echo "                --studytemplatebrain=<study template brain extracted t1w image>"
+  echo "                --studytemplatebrainmask=<study template binary brain mask>"
   echo "                --ref=<reference image>"
   echo "                --refbrain=<reference brain image>"
   echo "                --refmask=<reference brain mask>"
   echo "                [--ref2mm=<reference 2mm image>]"
   echo "                [--ref2mmmask=<reference 2mm brain mask>]"
+  echo "                --intowarp=<intermediate (subject to study template) output warp>"
+  echo "                --intoinvwarp=<intermediate output inverse warp>"
+  echo "                --int2refowarp=<intermediate to reference output warp>"
+  echo "                --int2foinvwarp=<intermediate to reference output inverse warp>"
   echo "                --owarp=<output warp>"
   echo "                --oinvwarp=<output inverse warp>"
   echo "                --ot1=<output t1w to MNI>"
