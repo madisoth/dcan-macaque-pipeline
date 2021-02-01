@@ -133,7 +133,7 @@ T1wRestoreBrainBasename=`remove_ext $T1wRestoreBrain`;
 T1wRestoreBrainBasename=`basename $T1wRestoreBrainBasename`;
 
 echo " "
-echo " START: AtlasRegistration to MNI152"
+echo " START: AtlasRegistration to MNI152 (with intermediate registration to study template)"
 
 mkdir -p $WD
 
@@ -181,7 +181,7 @@ ${FSLDIR}/bin/applywarp --rel --interp=nn -i ${T2wRestoreBrain} -r ${Reference} 
 ${FSLDIR}/bin/fslmaths ${OutputT2wImageRestore} -mas ${OutputT2wImageRestoreBrain} ${OutputT2wImageRestoreBrain}
 fi
 echo " "
-echo " END: AtlasRegistration to MNI152"
+echo " END: AtlasRegistration to MNI152 (with intermediate registration to study template)"
 echo " END: `date`" >> $WD/xfms/log.txt
 
 ########################################## QA STUFF ########################################## 

@@ -135,7 +135,7 @@ StudyTemplate=$(getopt1 "--StudyTemplate" $@) # optional user-specified study te
 StudyTemplateBrain=$(getopt1 "--StudyTemplateBrain" $@) # optional user-specified study template brain
 
 StudyTemplateBasename=`remove_ext $StudyTemplate`;
-StudyTemplateBasename=`basename $StudyTemplate`;
+StudyTemplateBasename=`basename $StudyTemplateBasename`;
 StudyTemplateBrainBasename=`remove_ext $StudyTemplateBrain`;
 StudyTemplateBrainBasename=`basename $StudyTemplateBrainBasename`;
 
