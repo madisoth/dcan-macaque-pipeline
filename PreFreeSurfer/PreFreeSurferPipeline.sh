@@ -134,6 +134,11 @@ T2BrainMask=$(getopt1 "--t2brainmask" $@) # optional user-specified T2 mask
 StudyTemplate=$(getopt1 "--StudyTemplate" $@) # optional user-specified study template
 StudyTemplateBrain=$(getopt1 "--StudyTemplateBrain" $@) # optional user-specified study template brain
 
+StudyTemplateBasename=`remove_ext $StudyTemplate`;
+StudyTemplateBasename=`basename $StudyTemplateBasename`;
+StudyTemplateBrainBasename=`remove_ext $StudyTemplateBrain`;
+StudyTemplateBrainBasename=`basename $StudyTemplateBrainBasename`;
+
 # useAntsReg flag added for using ANTs registration instead of FSL
 useAntsReg=$(getopt1 "--useAntsReg" $@)
 useAntsReg="$(echo ${useAntsReg} | tr '[:upper:]' '[:lower:]')" # to lower case
@@ -375,6 +380,22 @@ done
 
 ######## END LOOP over T1w and T2w #########
 
+# acpc align study template brain to reference; make mask
+  ${RUN} ${PipelineScripts}/ACPCAlignment.sh \
+  --workingdir=${T1wFolder}/StudyTemplateACPCAlignment \
+  --in=${StudyTemplateBrain} \
+  --ref=${T1wTemplateBrain} \
+  --out=${T1wFolder}/${StudyTemplateBasename}_acpc_brain \
+  --omat=${T1wFolder}/xfms/${StudyTemplateBasename}_acpc.mat \
+  --brainsize=${BrainSize}
+
+  fslmaths ${T1wFolder}/${StudyTemplateBasename}_acpc_brain -bin ${T1wFolder}/${StudyTemplateBasename}_acpc_mask
+
+  
+  #apply acpc xfm to study template head 
+  ${FSLDIR}/bin/applywarp --rel --interp=spline -i "${StudyTemplate}" -r "${T1wTemplate}" \
+  --premat="${T1wFolder}/xfms/StudyTemplate_acpc.mat" -o "${T1wFolder}/StudyTemplate_acpc"
+
 #Orient T1wN image to standard and create ACPC aligned T1wN image
 if [ ! $T1wNormalized = "NONE" ]; then
   pushd ${T1wFolder} >/dev/null
@@ -496,8 +517,8 @@ if ${useAntsReg}; then
   --t2=${T1wFolder}/${T2wImage}_acpc_dc.nii.gz \
   --t2rest=${T1wFolder}/${T2wImage}_acpc_dc_restore.nii.gz \
   --t2restbrain=${T1wFolder}/${T2wImage}_acpc_dc_restore_brain.nii.gz \
-  --studytemplate=${StudyTemplate} \
-  --studytemplatebrain=${StudyTemplateBrain} \
+  --studytemplate=${StudyTemplateBasename}_acpc.nii.gz \
+  --studytemplatebrain=${StudyTemplateBasename}_acpc_brain.nii.gz \
   --ref=${T1wTemplate} \
   --refbrain=${T1wTemplateBrain} \
   --refmask=${TemplateMask} \
