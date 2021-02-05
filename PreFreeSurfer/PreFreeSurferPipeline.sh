@@ -408,7 +408,7 @@ fi
   
   #apply acpc xfm to study template head 
   ${FSLDIR}/bin/applywarp --rel --interp=spline -i "${StudyTemplate}" -r "${T1wTemplate}" \
-  --premat="${T1wFolder}/xfms/StudyTemplate_acpc.mat" -o "${T1wFolder}/StudyTemplate_acpc"
+  --premat="${T1wFolder}/xfms/${StudyTemplateBasename}_acpc.mat" -o "${T1wFolder}/${StudyTemplateBasename}_acpc"
 
 if ${useReverseEpi:-false}; then
   #  Time is too long for Resting State, so we average it first.
@@ -520,9 +520,9 @@ if ${useIntermediateReg}; then
   --t2=${T1wFolder}/${T2wImage}_acpc_dc \
   --t2rest=${T1wFolder}/${T2wImage}_acpc_dc_restore \
   --t2restbrain=${T1wFolder}/${T2wImage}_acpc_dc_restore_brain \
-  --studytemplate=${StudyTemplateBasename}_acpc \
-  --studytemplatebrain=${StudyTemplateBasename}_acpc_brain \
-  --studytemplatebrainmask=${StudyTemplateBasename}_acpc_mask \
+  --studytemplate=${T1wFolder}/${StudyTemplateBasename}_acpc \
+  --studytemplatebrain=${T1wFolder}/${StudyTemplateBasename}_acpc_brain \
+  --studytemplatebrainmask=${T1wFolder}/${StudyTemplateBasename}_acpc_mask \
   --ref=${T1wTemplate} \
   --refbrain=${T1wTemplateBrain} \
   --refmask=${TemplateMask} \
