@@ -74,7 +74,7 @@ defaultopt() {
 # Just give usage if no arguments specified
 if [ $# -eq 0 ] ; then Usage; exit 0; fi
 # check for correct options
-if [ $# -lt 17 ] ; then Usage; exit 1; fi
+if [ $# -lt 19 ] ; then Usage; exit 1; fi
 
 # parse arguments
 WD=`getopt1 "--workingdir" $@`  # "$1"
@@ -131,27 +131,27 @@ echo " " >> $WD/xfms/log.txt
 
 ########################################## DO WORK ########################################## 
 
-echo " ANTs T1w to StudyTemplate"
+echo " ANTs T1wRestoreBrain to StudyTemplateBrain"
 
 #All ANTs registration
 # Register Input (T1w) to StudyTemplate brain using ANTs
 echo " "
-echo ${ANTSPATH}${ANTSPATH:+/}antsRegistrationSyN.sh -d 3 -f ${StudyTemplate} -m ${T1wRestore} -o ${WD}/xfms/${T1wRestoreBasename}2${StudyTemplateBasename}_
-${ANTSPATH}${ANTSPATH:+/}antsRegistrationSyN.sh -d 3 -f ${StudyTemplate} -m ${T1wRestore} -o ${WD}/xfms/${T1wRestoreBasename}2${StudyTemplateBasename}_
+echo ${ANTSPATH}${ANTSPATH:+/}antsRegistrationSyN.sh -d 3 -f ${StudyTemplateBrain} -m ${T1wRestoreBrain} -o ${WD}/xfms/${T1wRestoreBrainBasename}2${StudyTemplateBrainBasename}_
+${ANTSPATH}${ANTSPATH:+/}antsRegistrationSyN.sh -d 3 -f ${StudyTemplateBrain} -m ${T1wRestoreBrain} -o ${WD}/xfms/${T1wRestoreBrainBasename}2${StudyTemplateBrainBasename}_
 
-echo " ANTs T1w2StudyTemplate Registration to MNI"
+echo " ANTs T1wRestoreBrain2StudyTemplateBrain Registration to standard template"
 echo " "
 
-# Register The T1w2StudyTemplate to MNI atlas
-${ANTSPATH}${ANTSPATH:+/}antsRegistrationSyN.sh -d 3 -f ${Reference} -m ${WD}/xfms/${T1wRestoreBasename}2${StudyTemplateBasename}_Warped.nii.gz -x ${ReferenceMask} -o ${WD}/xfms/T1w${StudyTemplateBasename}_to_MNI_
+# Register The T1w2RestoreStudyTemplateBrain to standard template brain
+${ANTSPATH}${ANTSPATH:+/}antsRegistrationSyN.sh -d 3 -f ${Reference} -m ${WD}/xfms/${T1wRestoreBrainBasename}2${StudyTemplateBrainBasename}_Warped.nii.gz -x ${ReferenceMask} -o ${WD}/xfms/T1w${StudyTemplateBrainBasename}_to_MNI_
 
 echo " antsApplyTransform"
 echo " "
 # combine all the affine and non-linear warps in the order: W2, A2, W1, A1
-${ANTSPATH}${ANTSPATH:+/}antsApplyTransforms -d 3 -i ${T1wRestore} -r ${Reference} -t ${WD}/xfms/T1w${StudyTemplateBasename}_to_MNI_1Warp.nii.gz -t ${WD}/xfms/T1w${StudyTemplateBasename}_to_MNI_0GenericAffine.mat -t ${WD}/xfms/${T1wRestoreBasename}2${StudyTemplateBasename}_1Warp.nii.gz -t ${WD}/xfms/${T1wRestoreBasename}2${StudyTemplateBasename}_0GenericAffine.mat -o [${WD}/xfms/ANTs_CombinedWarp.nii.gz,1] 
+${ANTSPATH}${ANTSPATH:+/}antsApplyTransforms -d 3 -i ${T1wRestore} -r ${Reference} -t ${WD}/xfms/T1w${StudyTemplateBrainBasename}_to_MNI_1Warp.nii.gz -t ${WD}/xfms/T1w${StudyTemplateBrainBasename}_to_MNI_0GenericAffine.mat -t ${WD}/xfms/${T1wRestoreBrainBasename}2${StudyTemplateBrainBasename}_1Warp.nii.gz -t ${WD}/xfms/${T1wRestoreBrainBasename}2${StudyTemplateBrainBasename}_0GenericAffine.mat -o [${WD}/xfms/ANTs_CombinedWarp.nii.gz,1] 
 
 # combine inverse warps in the order A1, W1, A2, W2
-${ANTSPATH}${ANTSPATH:+/}antsApplyTransforms -d 3 -i ${T1wImage} -r ${Reference} -t [${WD}/xfms/${T1wRestoreBasename}2${StudyTemplateBasename}_0GenericAffine.mat,1] -t ${WD}/xfms/${T1wRestoreBasename}2${StudyTemplateBasename}_1InverseWarp.nii.gz -t [${WD}/xfms/T1w${StudyTemplateBasename}_to_MNI_0GenericAffine.mat,1] -t ${WD}/xfms/T1w${StudyTemplateBasename}_to_MNI_1InverseWarp.nii.gz -o [${WD}/xfms/ANTs_CombinedInvWarp.nii.gz,1] 
+${ANTSPATH}${ANTSPATH:+/}antsApplyTransforms -d 3 -i ${T1wImage} -r ${Reference} -t [${WD}/xfms/${T1wRestoreBrainBasename}2${StudyTemplateBrainBasename}_0GenericAffine.mat,1] -t ${WD}/xfms/${T1wRestoreBrainBasename}2${StudyTemplateBrainBasename}_1InverseWarp.nii.gz -t [${WD}/xfms/T1w${StudyTemplateBrainBasename}_to_MNI_0GenericAffine.mat,1] -t ${WD}/xfms/T1w${StudyTemplateBrainBasename}_to_MNI_1InverseWarp.nii.gz -o [${WD}/xfms/ANTs_CombinedInvWarp.nii.gz,1] 
 
 #Conversion of ANTs to FSL format
 echo " ANTs to FSL warp conversion"
