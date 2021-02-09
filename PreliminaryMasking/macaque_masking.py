@@ -128,10 +128,11 @@ def interface(path, t1w_images, t2w_images, t1_brain_mask, t2_brain_mask,
     # @TODO insert workaround for bad OHSU t2w protocol.
     # @TODO initial N4BiasCorrection is necessary?
 
-    if user_t1w_mask and user_t1w_mask() != 'NONE':
+    if t1_brain_mask and t1_brain_mask() != 'NONE':
         # if a user-specified mask exists, skip ants mask generation
         # and apply the specified mask instead
-        copy_t1w_mask = 'cp {user_t1w_mask} {brain_mask}'
+        copy_t1w_mask = 'cp {user_t1w_mask} {brain_mask}'.format(
+            **kwargs)
         user_mask_t1w = 'fslmaths {t1w} -mas {brain_mask} {t1w_brain}'.format(
             **kwargs)
         cmdlist += [copy_t1w_mask, user_mask_t1w]
@@ -162,10 +163,11 @@ def interface(path, t1w_images, t2w_images, t1_brain_mask, t2_brain_mask,
         mask_t1w = 'fslmaths {t1w} -mas {brain_mask} {t1w_brain}'.format(**kwargs)
         cmdlist += [bias_field_correct_t1w, rigid_align, create_mask, ants_warp, apply_ants_warp,
                     inverse_mat, rigid_align_mask, mask_t1w]
-    if user_t2w_mask and user_t2w_mask() != 'NONE':
+    if t2_brain_mask and t2_brain_mask() != 'NONE':
         # if a user-specified mask exists, skip ants mask generation
         # and apply the specified mask instead
-        copy_t2w_mask = 'cp {user_t2w_mask} {t2w_brain_mask}'
+        copy_t2w_mask = 'cp {user_t2w_mask} {t2w_brain_mask}'.format(
+            **kwargs)
         user_mask_t2w = 'fslmaths {t2w} -mas {t2w_brain_mask} {t2w_brain}'.format(
             **kwargs)
         cmdlist += [copy_t2w_mask, user_mask_t2w]
