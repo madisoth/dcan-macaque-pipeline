@@ -143,7 +143,7 @@ echo " ANTs T1wRestoreBrain2StudyTemplateBrain Registration to standard template
 echo " "
 
 # Register The T1w2RestoreStudyTemplateBrain to standard template brain
-${ANTSPATH}${ANTSPATH:+/}antsRegistrationSyN.sh -d 3 -f ${Reference} -m ${WD}/xfms/${T1wRestoreBrainBasename}2${StudyTemplateBrainBasename}_Warped.nii.gz -x ${ReferenceMask} -o ${WD}/xfms/T1w${StudyTemplateBrainBasename}_to_MNI_
+${ANTSPATH}${ANTSPATH:+/}antsRegistrationSyN.sh -d 3 -f ${ReferenceBrain} -m ${WD}/xfms/${T1wRestoreBrainBasename}2${StudyTemplateBrainBasename}_Warped.nii.gz -x ${ReferenceMask} -o ${WD}/xfms/T1w${StudyTemplateBrainBasename}_to_MNI_
 
 echo " antsApplyTransform"
 echo " "
