@@ -509,9 +509,14 @@ if ${useIntermediateReg}; then
   #  Also applies registration to T1w and T2w images
   #  Modified 20170330 by EF to include the option for a native mask in registration
   # ------------------------------------------------------------------------------
+<<<<<<< HEAD
 
   log_Msg "Performing Atlas Registration to MNI152 (FLIRT + FNIRT based with intermediate template)"
   ${RUN} ${PipelineScripts}/AtlasRegistrationToMNI152_FLIRTandFNIRT_Intermediate.sh \
+=======
+  log_Msg "Performing Atlas Registration to MNI152 (ANTs based with intermediate template)"
+  ${RUN} ${PipelineScripts}/AtlasRegistrationToMNI152_ANTsIntermediateTemplate_UseMasked.sh \
+>>>>>>> bdc714628a864ac9e497505625b17c5c987deb81
   --workingdir=${AtlasSpaceFolder} \
   --t1=${T1wFolder}/${T1wImage}_acpc_dc \
   --t1rest=${T1wFolder}/${T1wImage}_acpc_dc_restore \
